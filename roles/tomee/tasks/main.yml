@@ -1,0 +1,37 @@
+- name: Installation du jdk8
+  package: name=openjdk-8-jdk-headless state=present
+
+- name: Telechargement de TomEE
+  get_url:
+    url: '{{tomee_url}}'
+    dest: '{{tomee_home}}/apache-tomee-7.0.3-plus.tar.gz'
+    group: tomee
+    owner: tomee
+ 
+ - name: Création du compte pour TomEE
+  user:
+    name: tomee
+    shell: /bin/false
+    system: yes
+    home: '{{tomee_home}}'
+
+- name: Création du dossier /opt/tomee
+  file:
+    path: /opt/tomee
+    state: directory
+    mode: 0755
+    owner: tomee
+    group: tomee
+    
+- name: Changer le propriétaire du dossier
+    file: path=/opt/tomee owner=tomee group=tomee state=directory recurse=yes
+
+- name : Décompression de l'archive
+  unarchive:
+    src: '{{tomee_home}}/apache-tomee-7.0.3-plus.tar.gz'
+    dest: /opt/tomee/
+    remote_src: True
+
+- name: Création d'un TomEE systemd
+  file: path="/etc/systemd/system/tomcat.service" state=touch
+
