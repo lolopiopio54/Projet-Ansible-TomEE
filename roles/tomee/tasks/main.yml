@@ -34,4 +34,36 @@
 
 - name: Création d'un TomEE systemd
   file: path="/etc/systemd/system/tomcat.service" state=touch
+  
+  - name: Ecriture d'un systemd
+  copy:
+    dest: /etc/systemd/system/tomee.service
+    content: |
+      [Unit]
+      Description=Apache TomEE Web Application Container
+      After=network.target
+
+      [Service]
+      Type=forking
+
+      Environment=JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/
+      Environment=CATALINA_HOME=/opt/tomee/apache-tomee-plus-7.0.3
+      Environment=CATALINA_BASE=/opt/tomee/apache-tomee-plus-7.0.3
+      Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC'
+      Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom'
+
+      ExecStart=/opt/tomee/apache-tomee-plus-7.0.3/bin/startup.sh
+      ExecStop=/opt/tomee/apache-tomee-plus-7.0.3/bin/shutdown.sh
+
+      User=tomee
+      Group=root
+      RestartSec=10
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Lancement de TomEE au démarrage
+  shell: sudo systemctl enable tomee.service
+
 
